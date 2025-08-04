@@ -74,3 +74,60 @@ function deleteProduct($id){
     $stmt->execute();
     echo json_encode(array("message" => "Producto eliminado con exito"));
 }
+
+// ========== CLIENTES ==========
+function getClientes() {
+    global $db;
+    $stmt = $db->query("SELECT * FROM clientes");
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function createCliente($nombre, $apellido, $email, $celular, $direccion, $direccion2, $descripcion) {
+    global $db;
+    $stmt = $db->prepare("INSERT INTO clientes (nombre, apellido, email, celular, direccion, direccion2, descripcion) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$nombre, $apellido, $email, $celular, $direccion, $direccion2, $descripcion]);
+    echo json_encode(["message" => "Cliente creado con éxito"]);
+}
+
+function updateCliente($id, $nombre, $apellido, $email, $celular, $direccion, $direccion2, $descripcion) {
+    global $db;
+    $stmt = $db->prepare("UPDATE clientes SET nombre = ?, apellido = ?, email = ?, celular = ?, direccion = ?, direccion2 = ?, descripcion = ? WHERE id = ?");
+    $stmt->execute([$nombre, $apellido, $email, $celular, $direccion, $direccion2, $descripcion, $id]);
+    echo json_encode(["message" => "Cliente actualizado con éxito"]);
+}
+
+function deleteCliente($id) {
+    global $db;
+    $stmt = $db->prepare("DELETE FROM clientes WHERE id = ?");
+    $stmt->execute([$id]);
+    echo json_encode(["message" => "Cliente eliminado con éxito"]);
+}
+
+// ========== PEDIDOS ==========
+
+function getPedidos() {
+    global $db;
+    $stmt = $db->query("SELECT * FROM pedidos");
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function createPedido($cliente_id, $fecha, $total, $estado) {
+    global $db;
+    $stmt = $db->prepare("INSERT INTO pedidos (cliente_id, fecha, total, estado) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$cliente_id, $fecha, $total, $estado]);
+    echo json_encode(["message" => "Pedido creado con éxito"]);
+}
+
+function updatePedido($id, $cliente_id, $fecha, $total, $estado) {
+    global $db;
+    $stmt = $db->prepare("UPDATE pedidos SET cliente_id = ?, fecha = ?, total = ?, estado = ? WHERE id = ?");
+    $stmt->execute([$cliente_id, $fecha, $total, $estado, $id]);
+    echo json_encode(["message" => "Pedido actualizado con éxito"]);
+}
+
+function deletePedido($id) {
+    global $db;
+    $stmt = $db->prepare("DELETE FROM pedidos WHERE id = ?");
+    $stmt->execute([$id]);
+    echo json_encode(["message" => "Pedido eliminado con éxito"]);
+}

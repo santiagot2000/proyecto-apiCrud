@@ -91,7 +91,7 @@ let editDataTable = ( pos )=>{
     //console.log(singleProduct);
     localStorage.setItem("productEdit", JSON.stringify(singleProduct));
     localStorage.removeItem("datosTabla");
-    location.href = "../crear-pro.html";
+    location.href = "crear-pro.html";
 }
 
 

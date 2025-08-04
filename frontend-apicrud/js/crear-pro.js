@@ -138,7 +138,7 @@ let sendUpdateProduct = async ( pro )=>{
         }else{
             let mensaje = await respuesta.json();
             alert(mensaje.message);
-            location.href = "../listado-pro.html";
+            location.href = "listado-pro.html";
         }
     } catch (error) {
         console.log(error);

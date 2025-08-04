@@ -219,13 +219,13 @@
                                     <td>323399999</td>
                                     <td>Calle ciega 123</td>
                                     <td>
-                                        <button class="btn btn-sm btn-warning btn-edit" data-id="1">
+                                        <button id="btnEdit" class="btn btn-sm btn-warning btn-edit" data-id="1">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-danger btn-delete" data-id="1">
+                                        <button id="btnDelete" class="btn btn-sm btn-danger btn-delete" data-id="1">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                        <button class="btn btn-sm btn-info btn-view" data-id="1">
+                                        <button id="btnVisual" class="btn btn-sm btn-info btn-view" data-id="1">
                                             <i class="fas fa-eye"></i>
                                         </button>
                                     </td>
@@ -404,10 +404,12 @@
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <script src="js/sb-admin-2.min.js"></script>
-    <script src="js/listado-clientes.js"></script>
-    <script>
-let clienteActual = null;
+    <script src="js/listado-cliente.js"></script>
 
+    
+    <script>
+    let clienteActual = null;
+        
 // Función para mostrar el modal con información del cliente
 function verCliente(id) {
     // Aquí harías la llamada a la API para obtener los datos del cliente
@@ -469,7 +471,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-</script>
+    </script>
 </body>
-
 </html>

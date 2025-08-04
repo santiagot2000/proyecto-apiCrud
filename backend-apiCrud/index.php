@@ -8,55 +8,39 @@ if($method == "OPTIONS") {
     die();
 }
 
-    require("operaciones.php");
+require("operaciones.php");
 $ruta = $_GET['url'] ?? '';
-//echo $ruta;
 if ($ruta === 'login') {
-    // Verificar si se recibieron datos del usuario
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Obtener los datos del inicio de sesión desde el cuerpo de la solicitud
         $data = json_decode(file_get_contents("php://input"), true);
-        //echo json_encode($data);
         $usuario = $data['usuario'];
         $contrasena = $data['contrasena'];
-
-        // Verificar el inicio de sesión
         $userData = login($usuario, $contrasena);
-        //echo json_encode($userData);
         if ($userData) {
-            // Usuario autenticado, devolver los datos del usuario en formato JSON
             http_response_code(200);
             echo json_encode($userData);
         } else {
-            // Credenciales incorrectas
             http_response_code(401);
             echo json_encode(array("message" => "Credenciales incorrectas"));
         }
     } else {
-        // Método no permitido
         http_response_code(405);
-        echo json_encode(array("message" => "Metodo no permitido"));
+        echo json_encode(array("message" => "Método no permitido"));
     }
-}else if ($ruta === 'productos') {
+} else if ($ruta === 'productos') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        // Consultar productos
         $stmt = $db->query("SELECT * FROM productos");
         $productos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode($productos);
-    }elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Crear producto (solo permitido para administradores)
-        // Recibir datos del producto desde el cuerpo de la solicitud
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = json_decode(file_get_contents("php://input"), true);
         $nombre = $data['nombre'];
         $descripcion = $data['descripcion'];
         $precio = $data['precio'];
         $stock = $data['stock'];
         $imagen = $data['imagen'];
-        //pasar los datos a la funcion
         getProducts($nombre, $descripcion, $precio, $stock, $imagen);
-    }elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
-         // Actualizar producto (solo permitido para administradores)
-        // Recibir datos del producto desde el cuerpo de la solicitud
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         $data = json_decode(file_get_contents("php://input"), true);
         $id = $data['id'];
         $nombre = $data['nombre'];
@@ -65,19 +49,131 @@ if ($ruta === 'login') {
         $stock = $data['stock'];
         $imagen = $data['imagen'];
         updateProducts($id, $nombre, $descripcion, $precio, $stock, $imagen);
-    }elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-        // Eliminar producto (solo permitido para administradores)
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         $data = json_decode(file_get_contents("php://input"), true);
         $id = $data['id'];
         deleteProduct($id);
     } else {
-        // Método no permitido
         http_response_code(405);
         echo json_encode(array("message" => "Método no permitido"));
     }
-}else{
+} else if ($ruta === 'clientes') {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $clientes = getClientes();
+        echo json_encode($clientes);
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        createCliente(
+            $data['nombre'],
+            $data['apellido'],
+            $data['email'],
+            $data['celular'],
+            $data['direccion'],
+            $data['direccion2'],
+            $data['descripcion']
+        );
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        updateCliente(
+            $data['id'],
+            $data['nombre'],
+            $data['apellido'],
+            $data['email'],
+            $data['celular'],
+            $data['direccion'],
+            $data['direccion2'],
+            $data['descripcion']
+        );
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        deleteCliente($data['id']);
+    } else {
+        http_response_code(405);
+        echo json_encode(array("message" => "Método no permitido"));
+    }
+}elseif ($ruta === 'pedidos') {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $pedidos = getPedidos();
+        echo json_encode($pedidos);
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        createPedido(
+            $data['id_cliente'],
+            $data['descuento'],
+            $data['metodo_pago'],
+            $data['aumento'],
+            $data['productos']
+        );
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        updatePedido(
+            $data['id'],
+            $data['id_cliente'],
+            $data['descuento'],
+            $data['metodo_pago'],
+            $data['aumento']
+        );
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        deletePedido($data['id']);
+    } else {
+        http_response_code(405);
+        echo json_encode(array("message" => "Método no permitido"));
+    }
+}/* else if ($ruta === 'usuarios') {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        if ($id) {
+            getUserById($id);
+        } else {
+            getAllUsuarios();
+        }
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        createUser($data['rol'], $data['usuario'], $data['contrasena']);
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        updateUser(
+            $data['id'],
+            $data['rol'],
+            $data['usuario'],
+            $data['contrasena'] ?? null
+        );
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        deleteUser($data['id']);
+    } else {
+        http_response_code(405);
+        echo json_encode(array("message" => "Método no permitido"));
+    }
+} else if ($ruta === 'detalle-pedido') {
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $id_pedido = $_GET['id_pedido'] ?? null;
+        if ($id_pedido) {
+            getDetallesByPedido($id_pedido);
+        } else {
+            http_response_code(400);
+            echo json_encode(array("message" => "ID de pedido requerido"));
+        }
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        createDetallePedido(
+            $data['id_pedido'],
+            $data['id_producto'],
+            $data['precio'],
+            $data['cantidad']
+        );
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        updateDetallePedido($data['id'], $data['precio'], $data['cantidad']);
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+        $data = json_decode(file_get_contents("php://input"), true);
+        deleteDetallePedido($data['id']);
+    } else {
+        http_response_code(405);
+        echo json_encode(array("message" => "Método no permitido"));
+    }
+} else {
     http_response_code(404);
     echo json_encode(array("message" => "Ruta no encontrada"));
 }
-
-//INSERT INTO `productos` (`id`, `nombre`, `descripcion`, `precio`, `stock`, `imagen`, `created_at`, `updated_at`) VALUES (1, 'Hamburgueza', 'Hamburguesa doble carne', '30000', '10', 'https://www.irenemilito.it/wp-content/uploads/2017/03/23-double-bacon-cheeseburger.w710.h473.jpg', current_timestamp(), current_timestamp());
+?> */
