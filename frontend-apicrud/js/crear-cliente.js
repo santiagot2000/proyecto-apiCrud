@@ -35,15 +35,12 @@ btnCreate.addEventListener('click', () => {
 // evento al DOMContentLoaded
 d.addEventListener("DOMContentLoaded", () => {
     getUser();
-    const url = new URLSearchParams(window.location.search);
-    const id = url.get("id");
-    if (id) {
-        clienteUpdate = JSON.parse(localStorage.getItem("clienteEdit"));
-        if (clienteUpdate && clienteUpdate.id == id) {
-            updateDataCliente();
-        }
+    clienteUpdate = JSON.parse(localStorage.getItem("clienteEdit"));
+    if (clienteUpdate) {
+        updateDataCliente();
     }
 });
+
 
 // obtener datos del formulario
 let getDataCliente = () => {

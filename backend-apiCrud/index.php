@@ -120,13 +120,10 @@ if ($ruta === 'login') {
         http_response_code(405);
         echo json_encode(array("message" => "Método no permitido"));
     }
-}/* else if ($ruta === 'usuarios') {
+} else if ($ruta === 'usuarios') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        if ($id) {
-            getUserById($id);
-        } else {
-            getAllUsuarios();
-        }
+        $usuarios = getUsuarios();
+        echo json_encode($usuarios);
     } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = json_decode(file_get_contents("php://input"), true);
         createUser($data['rol'], $data['usuario'], $data['contrasena']);
@@ -145,14 +142,15 @@ if ($ruta === 'login') {
         http_response_code(405);
         echo json_encode(array("message" => "Método no permitido"));
     }
-} else if ($ruta === 'detalle-pedido') {
+}else if ($ruta === 'detalle-pedido') {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         $id_pedido = $_GET['id_pedido'] ?? null;
-        if ($id_pedido) {
-            getDetallesByPedido($id_pedido);
+        if ($id_pedido !== null) {
+            $detalles = getDetallePedidoPorId($id_pedido); // ✅ Función correcta
+            echo json_encode($detalles);
         } else {
             http_response_code(400);
-            echo json_encode(array("message" => "ID de pedido requerido"));
+            echo json_encode(array("message" => "Falta el parámetro id_pedido"));
         }
     } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $data = json_decode(file_get_contents("php://input"), true);
@@ -164,7 +162,13 @@ if ($ruta === 'login') {
         );
     } elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         $data = json_decode(file_get_contents("php://input"), true);
-        updateDetallePedido($data['id'], $data['precio'], $data['cantidad']);
+        updateDetallePedido(
+    $data['id'],
+    $data['id_pedido'],
+    $data['id_producto'],
+    $data['cantidad'],
+    $data['precio']
+    );
     } elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         $data = json_decode(file_get_contents("php://input"), true);
         deleteDetallePedido($data['id']);
@@ -172,8 +176,6 @@ if ($ruta === 'login') {
         http_response_code(405);
         echo json_encode(array("message" => "Método no permitido"));
     }
-} else {
-    http_response_code(404);
-    echo json_encode(array("message" => "Ruta no encontrada"));
 }
-?> */
+
+?> 

@@ -103,31 +103,60 @@ function deleteCliente($id) {
     echo json_encode(["message" => "Cliente eliminado con éxito"]);
 }
 
-// ========== PEDIDOS ==========
+// ========== DETALLE_PEDIDO ==========
 
-function getPedidos() {
+function getPedidos($id_pedido) {
     global $db;
-    $stmt = $db->query("SELECT * FROM pedidos");
+    $stmt = $db->prepare("SELECT * FROM detalle_pedido WHERE id_pedido = ?");
+    $stmt->execute([$id_pedido]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-function createPedido($cliente_id, $fecha, $total, $estado) {
+function createPedido($id_pedido, $producto_id, $cantidad, $precio_unitario) {
     global $db;
-    $stmt = $db->prepare("INSERT INTO pedidos (cliente_id, fecha, total, estado) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$cliente_id, $fecha, $total, $estado]);
-    echo json_encode(["message" => "Pedido creado con éxito"]);
+    $stmt = $db->prepare("INSERT INTO detalle_pedido (id_pedido, producto_id, cantidad, precio_unitario) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$id_pedido, $producto_id, $cantidad, $precio_unitario]);
+    echo json_encode(["message" => "Detalle de pedido creado con éxito"]);
 }
 
-function updatePedido($id, $cliente_id, $fecha, $total, $estado) {
+function updatePedido($id, $id_pedido, $producto_id, $cantidad, $precio_unitario) {
     global $db;
-    $stmt = $db->prepare("UPDATE pedidos SET cliente_id = ?, fecha = ?, total = ?, estado = ? WHERE id = ?");
-    $stmt->execute([$cliente_id, $fecha, $total, $estado, $id]);
-    echo json_encode(["message" => "Pedido actualizado con éxito"]);
+    $stmt = $db->prepare("UPDATE detalle_pedido SET id_pedido = ?, producto_id = ?, cantidad = ?, precio_unitario = ? WHERE id = ?");
+    $stmt->execute([$id_pedido, $producto_id, $cantidad, $precio_unitario, $id]);
+    echo json_encode(["message" => "Detalle de pedido actualizado con éxito"]);
 }
 
 function deletePedido($id) {
     global $db;
-    $stmt = $db->prepare("DELETE FROM pedidos WHERE id = ?");
+    $stmt = $db->prepare("DELETE FROM detalle_pedido WHERE id = ?");
     $stmt->execute([$id]);
-    echo json_encode(["message" => "Pedido eliminado con éxito"]);
+    echo json_encode(["message" => "Detalle de pedido eliminado con éxito"]);
+}
+
+// ========== USUARIOS ==========
+
+function getUsuarios() {
+    global $db;
+    $stmt = $db->query("SELECT * FROM roles");
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+function createUser($rol, $usuario, $contrasena) {
+    global $db;
+    $stmt = $db->prepare("INSERT INTO roles (nombre, usuario, contrasena) VALUES (?, ?, ?)");
+    $stmt->execute([$rol, $usuario, $contrasena]);
+    echo json_encode(["message" => "Usuario creado con éxito"]);
+}
+
+function updateUser($id, $rol, $usuario, $contrasena) {
+    global $db;
+    $stmt = $db->prepare("UPDATE roles SET nombre = ?, usuario = ?, contrasena = ? WHERE id = ?");
+    $stmt->execute([$rol, $usuario, $contrasena, $id]);
+    echo json_encode(["message" => "Usuario actualizado con éxito"]);
+}
+
+function deleteUser($id) {
+    global $db;
+    $stmt = $db->prepare("DELETE FROM roles WHERE id = ?");
+    $stmt->execute([$id]);
+    echo json_encode(["message" => "Usuario eliminado con éxito"]);
 }

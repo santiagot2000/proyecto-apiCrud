@@ -113,6 +113,10 @@ let updateDataProduct = ()=>{
             stock: stockInput.value,
             imagen: imagen.src
         }
+        priceInput.value = "";
+        descripcionInput.value = "";
+        stockInput.value = "";
+        imagen.src = "https://m.media-amazon.com/images/I/61XV8PihCwL._SY250_.jpg";
         //borrar info de localStorage
         localStorage.removeItem("productEdit");
         //pasar los datos del producto a la funcion

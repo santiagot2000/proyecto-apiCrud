@@ -84,3 +84,49 @@ let editPedido = (pos) => {
     localStorage.removeItem("pedidosTabla");
     location.href = "crear-pedido.html";
 };
+
+// ver pedido (solo guarda en localStorage y redirige)
+let verPedido = (pos) => {
+    let pedidos = JSON.parse(localStorage.getItem("pedidosTabla")) || [];
+    let pedido = pedidos[pos];
+    localStorage.setItem("pedidoVer", JSON.stringify(pedido));
+    location.href = "ver-pedido.html";
+};
+
+// eliminar pedido
+let deletePedido = async (pos) => {
+    let pedidos = JSON.parse(localStorage.getItem("pedidosTabla")) || [];
+    let pedido = pedidos[pos];
+
+    if (confirm("¿Estás seguro de eliminar este pedido?")) {
+        try {
+            let respuesta = await fetch(`http://localhost/proyecto-apiCrud/backend-apiCrud/pedidos/${pedido.id}`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" }
+            });
+
+            if (respuesta.ok) {
+                pedidos.splice(pos, 1);
+                localStorage.setItem("pedidosTabla", JSON.stringify(pedidos));
+                renderPedidosTable(pedidos);
+                alert("Pedido eliminado correctamente");
+            } else {
+                alert("No se pudo eliminar el pedido");
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+};
+
+// búsqueda en tabla
+let searchPedidosTable = () => {
+    let valor = searchInput.value.toLowerCase();
+    let pedidos = JSON.parse(localStorage.getItem("pedidosTabla")) || [];
+    let resultados = pedidos.filter(pedido =>
+        pedido.cliente_nombre.toLowerCase().includes(valor) ||
+        pedido.metodo_pago.toLowerCase().includes(valor) ||
+        pedido.estado.toLowerCase().includes(valor)
+    );
+    renderPedidosTable(resultados);
+};

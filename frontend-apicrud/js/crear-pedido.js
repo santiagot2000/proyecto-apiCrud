@@ -1,4 +1,3 @@
-// variables globales del formulario
 const d = document;
 let clienteSelect = d.querySelector('#cliente-select');
 let metodoPago = d.querySelector('#metodo-pago');
@@ -18,27 +17,24 @@ let pedidoUpdate = null;
 let productos = [];
 let total = 0;
 
-// función para poner el nombre del usuario
 let getUser = () => {
     let user = JSON.parse(localStorage.getItem("userLogin"));
     if (user && nameUser) nameUser.textContent = user.nombre;
 };
 
-// evento para logout
 btnLogout.addEventListener("click", () => {
     localStorage.removeItem("userLogin");
     location.href = "login.html";
 });
 
-// evento al botón crear
 btnCreate.addEventListener('click', () => {
     let data = getDataPedido();
     if (data) sendDataPedido(data);
 });
 
-// evento al DOMContentLoaded
 d.addEventListener("DOMContentLoaded", () => {
     getUser();
+    cargarClientes();
     const url = new URLSearchParams(window.location.search);
     const id = url.get("id");
     if (id) {
@@ -49,28 +45,42 @@ d.addEventListener("DOMContentLoaded", () => {
     }
 });
 
-// obtener datos del formulario
+function cargarClientes() {
+    fetch("http://localhost:3000/clientes")  // Ajusta URL si es diferente
+        .then(response => response.json())
+        .then(data => {
+            const clienteSelect = document.getElementById("cliente-select");
+            data.forEach(cliente => {
+                const option = document.createElement("option");
+                option.value = cliente.id;
+                option.textContent = `${cliente.nombre} ${cliente.apellido}`;
+                clienteSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error("Error cargando clientes:", error);
+        });
+}
+
 let getDataPedido = () => {
     if (
         clienteSelect.value &&
         metodoPago.value &&
         productos.length > 0
     ) {
-        let pedido = {
+        return {
             cliente_id: clienteSelect.value,
             fecha: new Date().toISOString().split('T')[0],
             total: total,
             estado: "Pendiente",
             productos: productos
         };
-
-        return pedido;
     } else {
         alert("Todos los campos obligatorios deben estar completos.");
+        return null;
     }
 };
 
-// enviar datos al servidor
 let sendDataPedido = async (data) => {
     let url = "http://localhost/proyecto-apiCrud/backend-apiCrud/pedidos";
     try {
@@ -81,10 +91,10 @@ let sendDataPedido = async (data) => {
             },
             body: JSON.stringify(data)
         });
+        let mensaje = await respuesta.json();
         if (respuesta.status === 406) {
             alert("Los datos enviados no son admitidos");
         } else {
-            let mensaje = await respuesta.json();
             alert(mensaje.message);
             location.href = "listado-pedidos.html";
         }
@@ -93,7 +103,6 @@ let sendDataPedido = async (data) => {
     }
 };
 
-// cargar datos para editar
 let updateDataPedido = () => {
     clienteSelect.value = pedidoUpdate.cliente_id;
     metodoPago.value = pedidoUpdate.metodo_pago;
@@ -118,7 +127,6 @@ let updateDataPedido = () => {
     });
 };
 
-// enviar actualización
 let sendUpdatePedido = async (pedido) => {
     let url = "http://localhost/proyecto-apiCrud/backend-apiCrud/pedidos";
     try {
@@ -129,10 +137,10 @@ let sendUpdatePedido = async (pedido) => {
             },
             body: JSON.stringify(pedido)
         });
+        let mensaje = await respuesta.json();
         if (respuesta.status === 406) {
             alert("Los datos enviados no son admitidos");
         } else {
-            let mensaje = await respuesta.json();
             alert(mensaje.message);
             location.href = "listado-pedidos.html";
         }
@@ -141,14 +149,21 @@ let sendUpdatePedido = async (pedido) => {
     }
 };
 
-// agregar producto al pedido
+// Agregar producto
 btnAgregarProducto.addEventListener('click', () => {
     let productoId = productoSelect.value;
+    let productoNombre = productoSelect.options[productoSelect.selectedIndex].text;
     let productoPrecio = productoSelect.options[productoSelect.selectedIndex].dataset.precio;
     let productoCantidad = cantidad.value;
 
+    if (!productoId || !productoCantidad || productoCantidad <= 0) {
+        alert("Selecciona un producto válido y una cantidad mayor a 0.");
+        return;
+    }
+
     let producto = {
         id: productoId,
+        nombre: productoNombre,
         precio: parseFloat(productoPrecio),
         cantidad: parseInt(productoCantidad),
         subtotal: parseFloat(productoPrecio) * parseInt(productoCantidad)
@@ -158,15 +173,21 @@ btnAgregarProducto.addEventListener('click', () => {
     total += producto.subtotal;
 
     renderProductosPedido();
+    cantidad.value = '';
 });
 
-// renderizar productos del pedido
+function eliminarProducto(index) {
+    total -= productos[index].subtotal;
+    productos.splice(index, 1);
+    renderProductosPedido();
+}
+
 let renderProductosPedido = () => {
     productosPedido.innerHTML = '';
     productos.forEach((producto, index) => {
         let fila = document.createElement('tr');
         fila.innerHTML = `
-            <td>${productoSelect.options[productoSelect.selectedIndex].text}</td>
+            <td>${producto.nombre}</td>
             <td>$${producto.precio.toLocaleString()}</td>
             <td>${producto.cantidad}</td>
             <td>$${producto.subtotal.toLocaleString()}</td>
@@ -179,5 +200,5 @@ let renderProductosPedido = () => {
         productosPedido.appendChild(fila);
     });
 
-    totalPedido.textContent = total.toLocaleString();
+    totalPedido.textContent = "$" + total.toLocaleString();
 };
